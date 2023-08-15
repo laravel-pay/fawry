@@ -4,7 +4,6 @@ namespace LaravelPay\Fawry;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use LaravelPay\Fawry\Commands\FawryCommand;
 
 class FawryServiceProvider extends PackageServiceProvider
 {
@@ -18,7 +17,7 @@ class FawryServiceProvider extends PackageServiceProvider
         $package
             ->name('fawry')
             ->hasConfigFile('payment-fawry')
-            ->hasViews("fawry")
+            ->hasViews('fawry')
             ->hasTranslations();
     }
 }
