@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Common\Traits;
+namespace LaravelPay\Fawry\Common\Traits;
 
 use Exception;
 

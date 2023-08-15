@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Common\Traits;
+namespace LaravelPay\Fawry\Common\Traits;
 
 trait HasHandelRedirects
 {
@@ -26,8 +26,8 @@ trait HasHandelRedirects
 
     public function handelRedirects()
     {
-        $this->success_url = config('payment-:package_slug.success_url');
-        $this->fail_url = config('payment-:package_slug.fail_url');
+        $this->success_url = config('payment-fawry.success_url');
+        $this->fail_url = config('payment-fawry.fail_url');
 
         $this->convertSuccessToFullUrl();
         $this->convertFailToFullUrl();

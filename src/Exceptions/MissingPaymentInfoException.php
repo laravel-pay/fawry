@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Exceptions;
+namespace LaravelPay\Fawry\Exceptions;
 
 use Exception;
 

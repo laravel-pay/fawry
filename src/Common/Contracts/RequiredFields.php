@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Common\Contracts;
+namespace LaravelPay\Fawry\Common\Contracts;
 
 interface RequiredFields
 {
