@@ -92,7 +92,7 @@ Route::get("/fawry" , function(){
 ```
 
 3. Verify Route <br>
-**_note : tou can chnage the verify route name in config file_**
+**_note : you can change the verify route name in config file_**
 
 ```php
 Route::get("/fawry/verify" , function(){
