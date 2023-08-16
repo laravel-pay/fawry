@@ -1,9 +1,25 @@
-# This is my package fawry
+## Fawry (EGYPT)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/laravel-pay/fawry.svg?style=flat-square)](https://packagist.org/packages/laravel-pay/fawry)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/laravel-pay/fawry/master.svg?style=flat-square)](https://travis-ci.org/laravel-pay/fawry)
+[![Quality Score](https://img.shields.io/scrutinizer/g/laravel-pay/fawry.svg?style=flat-square)](https://scrutinizer-ci.com/g/laravel-pay/fawry)
+[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/laravel-pay/fawry/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/laravel-pay/fawry/?branch=master)
 [![Total Downloads](https://img.shields.io/packagist/dt/laravel-pay/fawry.svg?style=flat-square)](https://packagist.org/packages/laravel-pay/fawry)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+Fawry is a Laravel package for the Fawry payment gateway (EGYPT).
+
+## Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Changelog](#changelog)
+- [Testing](#testing)
+- [Security](#security)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
+
 
 ## Installation
 
@@ -92,37 +108,37 @@ Route::get("/fawry" , function(){
 ```
 
 3. Verify Route <br>
-**_note : you can change the verify route name in config file_**
+   **_note : you can change the verify route name in config file_**
 
 ```php
 Route::get("/fawry/verify" , function(){
     $response = Fawry::setOnStagingMode()->verify();
     dd($response);
 })->name("fawry.verify");
-
 ```
 
-## Testing
-
-```bash
-composer test
-```
 
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
+## Testing
+
+``` bash
+$ composer test
+```
+
+## Security
+
+Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
 ## Credits
 
-- [elsayed kamal](https://github.com/laravel-pay)
+- [elsayed85](https://github.com/elsayed85)
 - [All Contributors](../../contributors)
 
 ## License
