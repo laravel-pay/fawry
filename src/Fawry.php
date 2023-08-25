@@ -42,9 +42,19 @@ class Fawry implements RequiredFields
 
     public function __construct()
     {
-        $this->setOnLiveMode();
-        $this->setDisplayAndPayModes();
+        $this->initializePaymentFawry();
+    }
 
+    private function initializePaymentFawry()
+    {
+        $this->setOnLiveMode();
+        $this->setDisplayMode();
+        $this->setPayMode();
+        $this->setConfigurations();
+    }
+
+    private function setConfigurations()
+    {
         $this->verify_route_name = config('payment-fawry.verify_route_name');
         $this->locale = config('payment-fawry.locale');
         $this->language = config('payment-fawry.language');
@@ -67,22 +77,25 @@ class Fawry implements RequiredFields
         ];
     }
 
-    private function setDisplayAndPayModes()
+    private function setDisplayMode()
     {
         $display_mode = config('payment-fawry.display_mode');
         $allowedDisplayModes = ['POPUP', 'INSIDE_PAGE', 'SIDE_PAGE', 'SEPARATED'];
 
-        if (! in_array($display_mode, $allowedDisplayModes)) {
-            throw new Exception('Invalid display mode, allowed values are '.implode(', ', $allowedDisplayModes));
+        if (!in_array($display_mode, $allowedDisplayModes)) {
+            throw new Exception('Invalid display mode, allowed values are ' . implode(', ', $allowedDisplayModes));
         }
 
         $this->display_mode = $display_mode;
+    }
 
+    private function setPayMode()
+    {
         $pay_mode = config('payment-fawry.pay_mode');
         $allowedPayModes = ['CashOnDelivery', 'PayAtFawry', 'MWALLET', 'CARD', 'VALU'];
 
-        if (! in_array($pay_mode, $allowedPayModes)) {
-            throw new Exception('Invalid pay mode, allowed values are '.implode(', ', $allowedPayModes));
+        if (!in_array($pay_mode, $allowedPayModes)) {
+            throw new Exception('Invalid pay mode, allowed values are ' . implode(', ', $allowedPayModes));
         }
 
         $this->pay_mode = $pay_mode;
@@ -149,27 +162,28 @@ class Fawry implements RequiredFields
     }
 
     /**
-     * @param  null  $user_id
-     * @param  null  $user_first_name
-     * @param  null  $user_last_name
-     * @param  null  $user_email
-     * @param  null  $user_phone
-     *
      * @throws Exception
      */
-    public function pay(
-        $amount = null,
-        $user_id = null,
-        $user_first_name = null,
-        $user_last_name = null,
-        $user_email = null,
-        $user_phone = null
-    ) {
+    public function pay()
+    {
         $this->requiredFieldsShouldExist();
 
-        $unique_id = uniqid();
+        $unique_id = $this->generateUniqueId();
+        $data = $this->preparePaymentData($unique_id);
 
-        $data = [
+        $data['secret'] = $this->getSecret($data);
+
+        return $this->prepareResponse($unique_id, $data);
+    }
+
+    private function generateUniqueId()
+    {
+        return uniqid();
+    }
+
+    private function preparePaymentData($unique_id)
+    {
+        return [
             'fawry_url' => $this->url,
             'fawry_merchant' => $this->merchant,
             'fawry_secret' => $this->secret,
@@ -188,9 +202,10 @@ class Fawry implements RequiredFields
             'amount' => $this->amount,
             'payment_id' => $unique_id,
         ];
+    }
 
-        $data['secret'] = $this->getSecret($data);
-
+    private function prepareResponse($unique_id, $data)
+    {
         return [
             'payment_id' => $unique_id,
             'html' => $this->generate_html($data),
@@ -201,17 +216,16 @@ class Fawry implements RequiredFields
     public function verify()
     {
         $request = request();
+        $chargeResponse = $this->getChargeResponse($request);
 
-        if (! $request->has('chargeResponse')) {
+        if (!$chargeResponse) {
             return $this->failed($request);
         }
 
-        $res = json_decode($request['chargeResponse'], true);
-        $reference_id = $res['merchantRefNumber'];
+        $reference_id = $chargeResponse['merchantRefNumber'];
+        $hash = $this->generateHash($this->merchant, $reference_id, $this->secret);
 
-        $hash = hash('sha256', $this->merchant.$reference_id.$this->secret);
-
-        $apiRequest = Http::get($this->getVerifyRequestUrl($reference_id, $hash));
+        $apiRequest = $this->sendApiRequest($reference_id, $hash);
 
         if ($apiRequest->failed()) {
             return $this->failed($request, $reference_id);
@@ -219,19 +233,21 @@ class Fawry implements RequiredFields
 
         $response = $apiRequest->json();
 
-        $statusCode = $response['statusCode'];
-        $paymentStatus = $response['paymentStatus'];
+        return $this->handleApiResponse($response, $request, $reference_id);
+    }
 
-        if ($statusCode == 200 && $paymentStatus == 'PAID') {
-            return $this->success($request, $reference_id);
-        } else {
-            return $this->failed($request, $reference_id);
+    private function getChargeResponse($request)
+    {
+        if ($request->has('chargeResponse')) {
+            return json_decode($request['chargeResponse'], true);
         }
+
+        return false;
     }
 
     private function getVerifyRequestUrl($reference_id, $hash): string
     {
-        return $this->url.'ECommerceWeb/Fawry/payments/status/v2?merchantCode='.$this->merchant.'&merchantRefNumber='.$reference_id.'&signature='.$hash;
+        return $this->url . 'ECommerceWeb/Fawry/payments/status/v2?merchantCode=' . $this->merchant . '&merchantRefNumber=' . $reference_id . '&signature=' . $hash;
     }
 
     private function success(Request $request, $reference_id): array
@@ -266,13 +282,9 @@ class Fawry implements RequiredFields
             'fawry_secret',
         ];
 
-        $secret = '';
-
-        foreach ($sequence as $key) {
-            $secret .= $data[$key];
-        }
-
-        return $secret;
+        return array_reduce($sequence, function ($carry, $key) use ($data) {
+            return $carry . $data[$key];
+        }, '');
     }
 
     private function generate_html($data): string
