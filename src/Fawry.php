@@ -289,6 +289,7 @@ class Fawry implements RequiredFields
 
     private function generate_html($data): string
     {
-        return view('fawry::form', ['model' => $this, 'data' => $data])->render();
+        $viewData = ['model' => $this, 'data' => $data];
+        return view('fawry::form', $viewData)->render();
     }
 }
