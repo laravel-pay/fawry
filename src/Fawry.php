@@ -4,7 +4,6 @@ namespace LaravelPay\Fawry;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use LaravelPay\Fawry\Common\Contracts\RequiredFields;
 use LaravelPay\Fawry\Common\Traits\HasRequiredFields;
 
@@ -82,8 +81,8 @@ class Fawry implements RequiredFields
         $display_mode = config('payment-fawry.display_mode');
         $allowedDisplayModes = ['POPUP', 'INSIDE_PAGE', 'SIDE_PAGE', 'SEPARATED'];
 
-        if (!in_array($display_mode, $allowedDisplayModes)) {
-            throw new Exception('Invalid display mode, allowed values are ' . implode(', ', $allowedDisplayModes));
+        if (! in_array($display_mode, $allowedDisplayModes)) {
+            throw new Exception('Invalid display mode, allowed values are '.implode(', ', $allowedDisplayModes));
         }
 
         $this->display_mode = $display_mode;
@@ -94,8 +93,8 @@ class Fawry implements RequiredFields
         $pay_mode = config('payment-fawry.pay_mode');
         $allowedPayModes = ['CashOnDelivery', 'PayAtFawry', 'MWALLET', 'CARD', 'VALU'];
 
-        if (!in_array($pay_mode, $allowedPayModes)) {
-            throw new Exception('Invalid pay mode, allowed values are ' . implode(', ', $allowedPayModes));
+        if (! in_array($pay_mode, $allowedPayModes)) {
+            throw new Exception('Invalid pay mode, allowed values are '.implode(', ', $allowedPayModes));
         }
 
         $this->pay_mode = $pay_mode;
@@ -218,7 +217,7 @@ class Fawry implements RequiredFields
         $request = request();
         $chargeResponse = $this->getChargeResponse($request);
 
-        if (!$chargeResponse) {
+        if (! $chargeResponse) {
             return $this->failed($request);
         }
 
@@ -247,7 +246,7 @@ class Fawry implements RequiredFields
 
     private function getVerifyRequestUrl($reference_id, $hash): string
     {
-        return $this->url . 'ECommerceWeb/Fawry/payments/status/v2?merchantCode=' . $this->merchant . '&merchantRefNumber=' . $reference_id . '&signature=' . $hash;
+        return $this->url.'ECommerceWeb/Fawry/payments/status/v2?merchantCode='.$this->merchant.'&merchantRefNumber='.$reference_id.'&signature='.$hash;
     }
 
     private function success(Request $request, $reference_id): array
@@ -283,7 +282,7 @@ class Fawry implements RequiredFields
         ];
 
         return array_reduce($sequence, function ($carry, $key) use ($data) {
-            return $carry . $data[$key];
+            return $carry.$data[$key];
         }, '');
     }
 
